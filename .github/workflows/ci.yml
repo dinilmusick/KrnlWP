@@ -7,5 +7,5 @@ jobs:
       - uses: actions/checkout@v4
       - uses: shivammathur/setup-php@v2
         with: {php-version: '8.2'}
-      - run: find src -name '*.php' -print0 | xargs -0 -n1 php -l
+      - run: php tools/validate.php
       - run: composer validate --strict
