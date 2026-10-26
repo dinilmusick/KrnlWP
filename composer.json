@@ -1,0 +1,1 @@
+{"name":"dinilmusick/krnlwp","description":"KrnlWP WordPress/PHP semantic backend kernel","type":"library","license":"MIT","autoload":{"psr-4":{"KrnlWP\\":"src/"}},"require":{"php":">=8.1"}}
