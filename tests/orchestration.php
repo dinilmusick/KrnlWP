@@ -23,7 +23,7 @@ expect($result['decision_then']==='yes' && $result['decision_else']===null,'bran
 
 $fan=new FunctionalityOrchestration('fan');
 $fan->fanOut('items','square',fn(array $ctx)=>$ctx['results']['input']['items'],2);
-$result=(new Executor())->execute($fan,['square'=>fn($v)=>$v*$v],[1,2,3]);
+$result=(new Executor())->execute($fan,['square'=>fn($v)=>$v*$v],['items'=>[1,2,3]]);
 expect($result===[1,4,9],'fanOut execution failed');
 
 $retry=new FunctionalityOrchestration('retry');
