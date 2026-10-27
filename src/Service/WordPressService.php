@@ -20,7 +20,7 @@ final class WordPressService implements Service {
     public function start():void{
         if($this->state()==='running')return;
         $this->lifecycle->transition('starting');
-        try{$this->definition->lifecycle['onStart']??null;$this->lifecycle->transition('running');}
+        try{$this->lifecycle->transition('running');}
         catch(\Throwable $e){$this->lifecycle->transition('ready');throw $e;}
     }
     public function stop():void{
