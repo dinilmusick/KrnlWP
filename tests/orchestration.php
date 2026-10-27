@@ -11,9 +11,9 @@ function expect($condition,string $message):void{
 $flow=new FunctionalityOrchestration('test');
 $flow->then('double')->then('add');
 $result=(new Executor())->execute($flow,[
-    'double'=>fn(array $ctx)=>$ctx['results']['input']*2,
+    'double'=>fn(array $ctx)=>$ctx['results']['input']['items']['value']*2,
     'add'=>fn(array $ctx)=>$ctx['results']['step_0_add']??$ctx['results']['step_0_double']+3,
-],7);
+],['value'=>7]);
 expect($result===17,'sequential execution failed');
 
 $branch=new FunctionalityOrchestration('branch');
