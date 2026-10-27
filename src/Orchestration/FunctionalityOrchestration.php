@@ -6,26 +6,42 @@ final class FunctionalityOrchestration {
     private function append(string $type,string $target,array $options=[]):self{
         $id=$options['id']??'step_'.count($this->steps).'_'.$target;
         $depends=$options['dependsOn']??(count($this->steps)?[$this->steps[array_key_last($this->steps)]->id]:[]);
-        $this->steps[]=new Step($id,$type,$target,$depends,$options['condition']??null,$options['concurrency']??null,$options['inputFactory']??null);
+        $condition=$options['condition']??null;
+        if($condition!==null)$condition=\Closure::fromCallable($condition);
+        $inputFactory=$options['inputFactory']??null;
+        if($inputFactory!==null)$inputFactory=\Closure::fromCallable($inputFactory);
+        $catch=$options['catchHandler']??null;
+        if($catch!==null)$catch=\Closure::fromCallable($catch);
+        $this->steps[]=new Step(
+            $id,$type,$target,$depends,$condition,$options['concurrency']??null,$inputFactory,
+            $options['retry']??[],$options['timeoutMs']??null,$catch
+        );
         return $this;
     }
     public function then(string $functionality,array $options=[]):self{return $this->append('functionality',$functionality,$options);}
     public function parallel(string $name,array $targets,array $options=[]):self{
         $depends=$options['dependsOn']??(count($this->steps)?[$this->steps[array_key_last($this->steps)]->id]:[]);
-        $ids=[];foreach($targets as $target){$id=$name.'_'.$target;$ids[]=$id;$this->steps[]=new Step($id,'functionality',$target,$depends);}
+        $ids=[];foreach($targets as $target){$id=$name.'_'.$target;$ids[]=$id;$this->append('functionality',$target,['id'=>$id,'dependsOn'=>$depends]);}
         $this->steps[]=new Step($name.'_join','fanIn',$name,$ids);return $this;
     }
-    public function branch(string $name,callable $condition,string $then,?string $else=null):self{
+    public function branch(string $name,callable $condition,string $then,?string $else=null,array $options=[]):self{
         $condition=\Closure::fromCallable($condition);
-        $depends=count($this->steps)?[$this->steps[array_key_last($this->steps)]->id]:[];
-        $a=$name.'_then';$this->steps[]=new Step($a,'functionality',$then,$depends,$condition);
-        $join=[$a];if($else){$b=$name.'_else';$this->steps[]=new Step($b,'functionality',$else,$depends,fn($ctx)=>!$condition($ctx));$join[]=$b;}
+        $depends=$options['dependsOn']??(count($this->steps)?[$this->steps[array_key_last($this->steps)]->id]:[]);
+        $this->append('functionality',$then,['id'=>$name.'_then','dependsOn'=>$depends,'condition'=>$condition]);
+        $join=[$name.'_then'];
+        if($else){$this->append('functionality',$else,['id'=>$name.'_else','dependsOn'=>$depends,'condition'=>fn($ctx)=>!$condition($ctx)]);$join[]=$name.'_else';}
         $this->steps[]=new Step($name.'_join','fanIn',$name,$join);return $this;
     }
     public function fanOut(string $name,string $target,callable $items,int $concurrency=5):self{
-        return $this->append('fanOut',$target,['id'=>$name,'concurrency'=>$concurrency,'inputFactory'=>\Closure::fromCallable($items)]);
+        return $this->append('fanOut',$target,['id'=>$name,'concurrency'=>$concurrency,'inputFactory'=>$items]);
     }
     public function nested(string $id):self{return $this->append('nested',$id,['id'=>'nested_'.$id]);}
     public function steps():array{return $this->steps;}
-    public function definition():array{return ['id'=>$this->id,'version'=>$this->version,'scope'=>'functionality','steps'=>array_map(fn(Step $s)=>['id'=>$s->id,'type'=>$s->type,'target'=>$s->target,'dependsOn'=>$s->dependsOn],$this->steps)];}
+    public function definition():array{
+        return ['id'=>$this->id,'version'=>$this->version,'scope'=>'functionality','steps'=>array_map(
+            fn(Step $s)=>['id'=>$s->id,'type'=>$s->type,'target'=>$s->target,'dependsOn'=>$s->dependsOn,
+                'concurrency'=>$s->concurrency,'retryPolicy'=>$s->retryPolicy,'timeoutMs'=>$s->timeoutMs],
+            $this->steps
+        )];
+    }
 }
