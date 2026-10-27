@@ -12,7 +12,7 @@ $flow=new FunctionalityOrchestration('test');
 $flow->then('double')->then('add');
 $result=(new Executor())->execute($flow,[
     'double'=>fn(array $ctx)=>$ctx['results']['input']['value']*2,
-    'add'=>fn(array $ctx)=>$ctx['results']['step_0_add']??$ctx['results']['step_0_double']+3,
+    'add'=>fn(array $ctx)=>$ctx['results']['step_0_double']+3,
 ],['value'=>7]);
 expect($result===17,'sequential execution failed');
 
