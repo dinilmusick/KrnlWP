@@ -11,3 +11,4 @@ jobs:
       - run: composer install --no-interaction --prefer-dist
       - run: php tools/validate.php
       - run: php tests/orchestration.php
+      - run: php tests/service-lifecycle.php
