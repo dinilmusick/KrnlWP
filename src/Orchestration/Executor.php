@@ -2,6 +2,7 @@
 namespace KrnlWP\Orchestration;
 
 final class Executor {
+    public function __construct(private readonly ?\Closure $nestedRunner=null) {}
     public function execute(FunctionalityOrchestration $flow,array $functionalities,array $input=[]):mixed{
         $done=[];$results=['input'=>$input];$value=$input;
         $steps=$flow->steps();$remaining=count($steps);
@@ -46,9 +47,9 @@ final class Executor {
             }
             return $resultsOut;
         }
+        if($step->type==='nested'&&$this->nestedRunner)return ($this->nestedRunner)($step->target,$results,$this->context($results));
         $worker=$this->worker($functionalities,$step->target);
-        $payload=$step->type==='nested'?$results:$results;
-        return $this->invoke($worker,$payload,$step);
+        return $this->invoke($worker,$results,$step);
     }
 
     private function worker(array $functionalities,string $target):callable{
@@ -70,7 +71,7 @@ final class Executor {
                 if($delay>0)usleep($delay*1000);
             }
         }
-        if($step->catchHandler)return ($step->catchHandler)($last,$payload);
+        if($step->catchHandler)return ($step->catchHandler)($last,$this->context(['input'=>$payload]));
         throw $last??new \RuntimeException('Step execution failed');
     }
 
