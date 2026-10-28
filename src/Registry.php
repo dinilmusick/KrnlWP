@@ -5,20 +5,21 @@ use KrnlWP\Contract\Service;
 use RuntimeException;
 
 final class Registry {
-    /** @var array<string,Service> */
     private array $services=[];
-
-    public function register(Service $service): void {
-        if (isset($this->services[$service->id()])) {
-            throw new RuntimeException("Service already registered: ".$service->id());
-        }
-        $this->services[$service->id()]=$service;
+    public function register(Service $service):void{
+        $id=$service->id();
+        if(isset($this->services[$id]))throw new RuntimeException("Service already registered: $id");
+        $this->services[$id]=['service'=>$service,'registeredAt'=>microtime(true)];
     }
-
-    public function get(string $id): Service {
-        return $this->services[$id] ?? throw new RuntimeException("Unknown service: ".$id);
+    public function replace(Service $service):void{
+        $id=$service->id();$registeredAt=$this->services[$id]['registeredAt']??microtime(true);
+        $this->services[$id]=['service'=>$service,'registeredAt'=>$registeredAt];
     }
-
-    /** @return list<Service> */
-    public function all(): array { return array_values($this->services); }
+    public function unregister(string $id):bool{return isset($this->services[$id])?($ok=unset($this->services[$id])):false;}
+    public function get(string $id):Service{return $this->services[$id]['service']??throw new RuntimeException("Unknown service: $id");}
+    public function record(string $id):array{return $this->services[$id]??throw new RuntimeException("Unknown service: $id");}
+    public function all():array{return array_values(array_map(fn($r)=>$r['service'],$this->services));}
+    public function findByCapability(string $capability):array{
+        return array_values(array_filter($this->all(),fn(Service $s)=>in_array($capability,$s->capabilities(),true)));
+    }
 }
