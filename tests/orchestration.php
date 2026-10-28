@@ -11,18 +11,18 @@ function expect($condition,string $message):void{
 $flow=new FunctionalityOrchestration('test');
 $flow->then('double')->then('add');
 $result=(new Executor())->execute($flow,[
-    'double'=>fn(array $ctx)=>$ctx['results']['input']['value']*2,
-    'add'=>fn(array $ctx)=>$ctx['results']['step_0_double']+3,
+    'double'=>fn(array $ctx)=>$ctx['input']['value']*2,
+    'add'=>fn(array $ctx)=>$ctx['step_0_double']+3,
 ],['value'=>7]);
 expect($result===17,'sequential execution failed');
 
 $branch=new FunctionalityOrchestration('branch');
-$branch->branch('decision',fn(array $ctx)=>$ctx['results']['input']['ok'],'yes','no');
+$branch->branch('decision',fn(array $ctx)=>$ctx['input']['ok'],'yes','no');
 $result=(new Executor())->execute($branch,['yes'=>fn()=> 'yes','no'=>fn()=> 'no'],[ 'ok'=>true ]);
 expect($result['decision_then']==='yes' && $result['decision_else']===null,'branch execution failed');
 
 $fan=new FunctionalityOrchestration('fan');
-$fan->fanOut('items','square',fn(array $ctx)=>$ctx['results']['input']['items'],2);
+$fan->fanOut('items','square',fn(array $ctx)=>$ctx['input']['items'],2);
 $result=(new Executor())->execute($fan,['square'=>fn($v)=>$v*$v],['items'=>[1,2,3]]);
 expect($result===[1,4,9],'fanOut execution failed');
 
