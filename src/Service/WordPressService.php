@@ -36,6 +36,9 @@ final class WordPressService implements Service {
         return $handler($input,$context+['service'=>$this]);
     }
     public function getState():array{return $this->state;}
+    public function capabilities():array{return $this->definition->capabilities;}
+    public function getDefinition():object{return $this->definition;}
+    public function dispose():void{$this->stop();}
     public function setState(array $mutation):void{$this->state=array_replace($this->state,$mutation);}
     public function on(string $event,callable $handler):callable{$this->listeners[$event]??=[];$this->listeners[$event][]=$handler;return function()use($event,$handler):void{$this->listeners[$event]=array_filter($this->listeners[$event],fn($h)=>$h!==$handler);};}
     public function emit(string $event,mixed $payload=null):void{foreach($this->listeners[$event]??[] as $handler)$handler($payload,$this);}
