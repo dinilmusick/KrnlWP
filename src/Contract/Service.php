@@ -8,4 +8,9 @@ interface Service {
     public function stop(): void;
     public function state(): string;
     public function call(string $operation,mixed $input=[],array $context=[]): mixed;
+    public function getState():array;
+    public function setState(array $mutation):void;
+    public function capabilities():array;
+    public function getDefinition():object;
+    public function dispose():void;
 }
