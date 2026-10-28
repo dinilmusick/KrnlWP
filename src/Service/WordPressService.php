@@ -30,7 +30,7 @@ final class WordPressService implements Service {
         catch(\Throwable $e){$this->lifecycle->transition('running');throw $e;}
     }
     public function call(string $operation,mixed $input=[],array $context=[]):mixed{
-        $this->lifecycle->assertRunning($this->id);
+        $this->lifecycle->assertRunning($this->id());
         $handler=$this->definition->operations[$operation]??null;
         if(!is_callable($handler))throw new \RuntimeException("Unknown operation: $operation");
         return $handler($input,$context+['service'=>$this]);
