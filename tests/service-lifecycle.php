@@ -1,5 +1,18 @@
 <?php
-require __DIR__.'/../vendor/autoload.php';
+
+declare(strict_types=1);
+
+if (file_exists(__DIR__ . '/../vendor/autoload.php')) {
+    require __DIR__ . '/../vendor/autoload.php';
+} else {
+    spl_autoload_register(function (string $class) {
+        $prefix = 'KrnlWP\\';
+        if (str_starts_with($class, $prefix)) {
+            $file = __DIR__ . '/../src/' . str_replace('\\', '/', substr($class, strlen($prefix))) . '.php';
+            if (file_exists($file)) require_once $file;
+        }
+    });
+}
 use KrnlWP\Service\{Definition,WordPressService};
 function expect($ok,$msg){if(!$ok)throw new RuntimeException($msg);}
 $s=new WordPressService(new Definition('demo','Demo','1.0',['echo'=>fn($in)=>$in],['ready'=>true]));

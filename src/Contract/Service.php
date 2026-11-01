@@ -1,4 +1,7 @@
 <?php
+
+declare(strict_types=1);
+
 namespace KrnlWP\Contract;
 interface Service {
     public function id(): string;

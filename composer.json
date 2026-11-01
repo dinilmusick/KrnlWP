@@ -19,6 +19,9 @@
     "symfony/validator": "^7.3",
     "woocommerce/action-scheduler": "^4.2"
   },
+  "bin": [
+    "bin/krnl"
+  ],
   "extra": {
     "branch-alias": {
       "dev-main": "0.1.x-dev"

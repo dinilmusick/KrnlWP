@@ -1,4 +1,7 @@
 <?php
+
+declare(strict_types=1);
+
 namespace KrnlWP\Protocol;
 final class ProtocolEnvelope {
     public function __construct(

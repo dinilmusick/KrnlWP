@@ -1,4 +1,7 @@
 <?php
+
+declare(strict_types=1);
+
 namespace KrnlWP\Service;
 final class ServiceGenerators {
     public static function validate(Definition $d):Definition {

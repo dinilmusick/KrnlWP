@@ -1,4 +1,7 @@
 <?php
+
+declare(strict_types=1);
+
 namespace KrnlWP\Transport;
 use KrnlWP\Protocol\ProtocolEnvelope;
 final class MemoryTransport {

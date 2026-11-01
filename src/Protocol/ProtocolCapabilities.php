@@ -1,4 +1,7 @@
 <?php
+
+declare(strict_types=1);
+
 namespace KrnlWP\Protocol;
 final class ProtocolCapabilities {
     public function __construct(

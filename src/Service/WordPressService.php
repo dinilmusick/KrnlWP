@@ -1,4 +1,7 @@
 <?php
+
+declare(strict_types=1);
+
 namespace KrnlWP\Service;
 use KrnlWP\Contract\Service;
 use KrnlWP\Lifecycle\LifecycleManager;

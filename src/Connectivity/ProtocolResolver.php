@@ -1,4 +1,7 @@
 <?php
+
+declare(strict_types=1);
+
 namespace KrnlWP\Connectivity;
 final class ProtocolResolver {
     public function resolve(array $endpoints, array $preferred=[]): ?array {

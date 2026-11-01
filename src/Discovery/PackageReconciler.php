@@ -1,4 +1,7 @@
 <?php
+
+declare(strict_types=1);
+
 namespace KrnlWP\Discovery;
 final class PackageReconciler {
     public function diff(array $declared,array $installed): array {

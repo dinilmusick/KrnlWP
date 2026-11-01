@@ -1,4 +1,7 @@
 <?php
+
+declare(strict_types=1);
+
 namespace KrnlWP\Protocol;
 final class WordPressHttpAdapter {
     public function request(string $method,string $url,array $body=[]): array {

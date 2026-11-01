@@ -1,4 +1,7 @@
 <?php
+
+declare(strict_types=1);
+
 namespace KrnlWP\Registry;
 use KrnlWP\Service\{Definition,ServiceGenerators};
 final class ServiceRegistry {

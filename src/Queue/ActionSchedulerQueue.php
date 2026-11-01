@@ -1,4 +1,7 @@
 <?php
+
+declare(strict_types=1);
+
 namespace KrnlWP\Queue;
 
 final class ActionSchedulerQueue implements Queue {
