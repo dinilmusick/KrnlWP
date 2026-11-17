@@ -12,3 +12,4 @@ jobs:
       - run: php tools/validate.php
       - run: php tests/orchestration.php
       - run: php tests/service-lifecycle.php
+      - run: php tests/runtime-regression.php
