@@ -15,7 +15,10 @@ final class ServiceRuntime {
 
     public function register(Service $service):self{
         $id=$service->id();
-        if(isset($this->services[$id])&&$this->services[$id]!==$service)throw new \RuntimeException("Service already registered: $id");
+        if (isset($this->services[$id])) {
+            if ($this->services[$id] !== $service) throw new \RuntimeException("Service already registered: $id");
+            return $this;
+        }
         $this->registry->register($service);
         $this->services[$id]=$service;
         return $this;
@@ -32,12 +35,28 @@ final class ServiceRuntime {
     }
     public function startAll():void{
         $started=[];
-        try{foreach($this->services as $service){$service->register();$service->start();$started[]=$service;}}
-        catch(\Throwable $e){foreach(array_reverse($started) as $service)try{$service->stop();}catch(\Throwable $ignored){}throw $e;}
+        try {
+            foreach ($this->services as $service) {
+                // Preserve running services owned by the caller during rollback.
+                if ($service->state() === 'running') continue;
+                $service->register();
+                $service->start();
+                $started[] = $service;
+            }
+        } catch (\Throwable $e) {
+            foreach (array_reverse($started) as $service) {
+                try { if ($service->state() === 'running') $service->stop(); }
+                catch (\Throwable $ignored) {}
+            }
+            throw $e;
+        }
     }
     public function stopAll():void{
         $first=null;
-        foreach(array_reverse($this->services) as $service)try{$service->stop();}catch(\Throwable $e){$first??=$e;}
+        foreach (array_reverse($this->services) as $service) {
+            if ($service->state() !== 'running') continue;
+            try { $service->stop(); } catch (\Throwable $e) { $first ??= $e; }
+        }
         if($first)throw $first;
     }
 }
